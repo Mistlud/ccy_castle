@@ -1,5 +1,27 @@
 # Castle progress
 
+## 2026-09-20 — Metadata schema update
+
+Status: implementation and automated verification complete; browser UI confirmation remains user-controlled.
+
+### Implemented
+
+- Replaced editable metadata fields `type` and `date` with string fields `artist` and `rating`.
+- Kept media type as a filesystem-derived card property rather than user-authored metadata.
+- Added artist and free-form rating labels to the card metadata line.
+- Hid `meta.json` and `thumbnail.jpg` card support files from explorer listings and media counts, case-insensitively.
+- Updated metadata examples and rules in `README.md`, `Plan.md`, and `Context.md`.
+
+### Verified on PC #1
+
+- `npm run check`: passed.
+- `npm test`: 17 tests passed, 0 failed, 0 skipped.
+- Library tests confirm `artist` and `rating` mapping, legacy `type` and `date` exclusion, inferred media type fallback, and support-file hiding.
+
+### Remaining manual check
+
+- Open a card with `artist` and `rating` values in `meta.json` and confirm the metadata line looks correct at the intended mobile width.
+
 ## 2026-09-20 — LAN MVP implementation and validation
 
 Status: LAN MVP implementation, automated verification, PC #2 deployment, and Android LAN validation complete.

@@ -3,7 +3,11 @@ const path = require('node:path');
 const { inferCollectionType, mediaTypeFor } = require('./media-types');
 
 const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
-const SUPPORTED_META_TYPES = new Set(['video', 'audio', 'image', 'mixed']);
+const CARD_SUPPORT_FILES = new Set(['meta.json', 'thumbnail.jpg']);
+
+function isCardSupportFile(filename) {
+  return CARD_SUPPORT_FILES.has(filename.toLowerCase());
+}
 
 function clientJoin(parent, child) {
   return parent ? `${parent}/${child}` : child;
@@ -31,11 +35,8 @@ class CastleLibrary {
       const parsed = JSON.parse(raw);
       if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
       const result = {};
-      for (const field of ['title', 'description', 'date']) {
+      for (const field of ['title', 'artist', 'description', 'rating']) {
         if (typeof parsed[field] === 'string') result[field] = parsed[field];
-      }
-      if (typeof parsed.type === 'string' && SUPPORTED_META_TYPES.has(parsed.type)) {
-        result.type = parsed.type;
       }
       return result;
     } catch (error) {
@@ -87,15 +88,16 @@ class CastleLibrary {
     const entries = await this.listEntries(directory.relativePath);
     const metadata = await this.readMetadata(directory.absolutePath);
     const mediaFiles = entries.filter(
-      (entry) => entry.kind === 'file' && !['meta.json', 'thumbnail.jpg'].includes(entry.name.toLowerCase()),
+      (entry) => entry.kind === 'file' && !isCardSupportFile(entry.name),
     );
 
     return {
       path: directory.relativePath,
       title: metadata.title || path.basename(directory.absolutePath),
-      type: metadata.type || inferCollectionType(mediaFiles.map((file) => file.name)),
+      artist: metadata.artist || '',
+      type: inferCollectionType(mediaFiles.map((file) => file.name)),
       description: metadata.description || '',
-      date: metadata.date || '',
+      rating: metadata.rating || '',
       mediaCount: mediaFiles.length,
       thumbnailUrl: `/thumbnail?path=${encodeURIComponent(directory.relativePath)}`,
     };
@@ -112,7 +114,9 @@ class CastleLibrary {
 
   async browse(relativeDirectory = '') {
     const directory = await this.guard.resolveExisting(relativeDirectory, 'directory');
-    const entries = await this.listEntries(directory.relativePath);
+    const entries = (await this.listEntries(directory.relativePath)).filter(
+      (entry) => entry.kind !== 'file' || !isCardSupportFile(entry.name),
+    );
     return {
       path: directory.relativePath,
       title: directory.relativePath ? path.basename(directory.absolutePath) : 'Castle',

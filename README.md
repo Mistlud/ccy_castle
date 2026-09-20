@@ -26,7 +26,9 @@ castle/
 └─ Photos/
 ```
 
-`meta.json` may contain `title`, `type`, `description`, and `date`. Missing or malformed metadata falls back to the folder name and inferred media type.
+`meta.json` may contain the string fields `title`, `artist`, `description`, and `rating`. `rating` is a free-form label such as `"12세 관람가"`. Missing or malformed metadata falls back to the folder name; media type is always inferred from the contained files.
+
+`meta.json` and `thumbnail.jpg` are card support files. They are used by Castle but omitted from explorer listings and media counts, case-insensitively.
 
 ## Development and automated checks on PC #1
 

@@ -144,9 +144,10 @@ Possible card information:
 
 - title
 - thumbnail
-- type
+- artist
+- inferred media type
 - description
-- date
+- rating
 - number of media files
 - useful inferred metadata
 
@@ -165,34 +166,28 @@ Suggested shape:
 ```json
 {
   "title": "Interstellar",
-  "type": "video",
+  "artist": "Christopher Nolan",
   "description": "Personal library item",
-  "date": "2026-09-20"
+  "rating": "12세 관람가"
 }
 ```
 
 Initial supported fields:
 
 - `title`
-- `type`
+- `artist`
 - `description`
-- `date`
-
-Suggested type values:
-
-```text
-video
-audio
-image
-mixed
-```
+- `rating`
 
 Rules:
 
 - malformed metadata produces fallback behavior, not a broken item
 - missing metadata must not hide the item
+- supported metadata values must be strings
+- rating is a free-form string label, not a numeric score
 - folder name is the default title
-- type may be inferred
+- type is inferred from contained files
+- `meta.json` and `thumbnail.jpg` are hidden from explorer listings and media counts
 
 ---
 

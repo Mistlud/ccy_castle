@@ -222,18 +222,21 @@ Suggested metadata:
 ```json
 {
   "title": "Interstellar",
-  "type": "video",
+  "artist": "Christopher Nolan",
   "description": "Personal library item",
-  "date": "2026-09-20"
+  "rating": "12세 관람가"
 }
 ```
 
 Rules:
 
 - `meta.json` is optional.
+- Supported metadata fields are the strings `title`, `artist`, `description`, and `rating`.
+- `rating` is a free-form label rather than a numeric score.
 - Missing or malformed metadata must not break the item.
 - Folder name is the fallback title.
-- Type may be inferred from contained files.
+- Type is inferred from contained files.
+- `meta.json` and `thumbnail.jpg` are internal card support files and are hidden from explorer listings and media counts.
 
 Thumbnail priority:
 

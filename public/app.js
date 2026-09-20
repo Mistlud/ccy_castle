@@ -180,7 +180,13 @@ async function renderMenu(path) {
       const copy = element('span', 'card-copy');
       copy.append(element('strong', '', card.title));
       if (card.description) copy.append(element('p', '', card.description));
-      copy.append(element('span', 'meta-line', `${card.type} · 미디어 ${card.mediaCount}개${card.date ? ` · ${card.date}` : ''}`));
+      const metadata = [
+        card.artist,
+        card.type,
+        `미디어 ${card.mediaCount}개`,
+        card.rating ? `등급 ${card.rating}` : '',
+      ].filter(Boolean).join(' · ');
+      copy.append(element('span', 'meta-line', metadata));
       button.append(image, copy);
       button.addEventListener('click', () => navigate('browse', card.path));
       cards.append(button);
