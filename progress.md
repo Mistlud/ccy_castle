@@ -1,5 +1,27 @@
 # Castle progress
 
+## 2026-09-20 — Explorer metadata and current UI assets
+
+Status: implementation and automated verification complete; browser UI confirmation remains user-controlled.
+
+### Implemented
+
+- Added Explorer-folder metadata fields for artist, description, inferred type, media count, and rating using the same directory-summary path as cards.
+- Added the optional description and compact metadata line below the Explorer folder title.
+- Changed HTML, JavaScript, CSS, and placeholder responses from one-hour caching to `no-cache` while retaining immutable caching for content-versioned library thumbnails.
+
+### Verified on PC #1
+
+- `npm run check`: passed.
+- `npm test`: 21 tests passed, 0 failed, 0 skipped.
+- Library tests confirm Explorer metadata mapping, and server tests confirm `no-cache` on every static UI asset.
+- `git diff --check`: passed.
+
+### Remaining manual checks
+
+- Confirm a normal, non-incognito browser session receives current CSS and JavaScript after the PC #2 server restarts.
+- Confirm folders with complete and partial `meta.json` data render the Explorer description and compact metadata line without empty separators.
+
 ## 2026-09-20 — System-file filtering and sharper Explorer styling
 
 Status: implementation and automated verification complete; browser UI confirmation remains user-controlled.

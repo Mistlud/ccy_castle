@@ -34,11 +34,13 @@ castle/
 
 Castle fingerprints each card folder from its direct entries. Changes to `meta.json`, `thumbnail.jpg`, or the folder contents produce a new `v` value in that card's thumbnail URL the next time the library is loaded, so the browser does not reuse an older thumbnail for changed content. Versioned thumbnail responses are immutable; unversioned thumbnail requests are not cached.
 
+The HTML, JavaScript, CSS, and built-in placeholder are served with `Cache-Control: no-cache`, so a normal browser session checks for current UI assets after deployment. Versioned library thumbnails keep their long immutable cache behavior.
+
 Use the **라이브러리 새로고침** button in the top bar for manual recovery. It rescans the current view, rereads metadata, advances every thumbnail URL version, and removes only Castle-generated thumbnail cache files. It never removes original media, `meta.json`, or user-provided `thumbnail.jpg` files.
 
 ## Explorer interaction
 
-The Explorer header shows its label, a centered 4:3 current-folder thumbnail, and then a compact folder title. The thumbnail grows to a maximum width of `42rem`, while the Explorer title uses a smaller responsive size than the other page headings. Folder and file rows are single large click targets: folders navigate, audio starts playback, video opens the inline player, and images or other files open in a new tab. Separate `열기`, `재생`, and `보기` buttons are not used. Custom panel and control corner radii stay within `0.3rem` to `0.45rem` instead of using heavily rounded cards.
+The Explorer header shows its label, a centered 4:3 current-folder thumbnail, and then a compact folder title. Under the title it shows the optional description plus a compact line containing available artist, inferred media type, media count, and rating values. The thumbnail grows to a maximum width of `42rem`, while the Explorer title uses a smaller responsive size than the other page headings. Folder and file rows are single large click targets: folders navigate, audio starts playback, video opens the inline player, and images or other files open in a new tab. Separate `열기`, `재생`, and `보기` buttons are not used. Custom panel and control corner radii stay within `0.3rem` to `0.45rem` instead of using heavily rounded cards.
 
 ## Development and automated checks on PC #1
 

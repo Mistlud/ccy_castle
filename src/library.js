@@ -105,7 +105,7 @@ class CastleLibrary {
       .map(({ name, path: relativePath }) => ({ title: name, path: relativePath }));
   }
 
-  async card(relativeDirectory) {
+  async directoryData(relativeDirectory) {
     const directory = await this.guard.resolveExisting(relativeDirectory, 'directory');
     const entries = await this.listEntries(directory.relativePath);
     const metadata = await this.readMetadata(directory.absolutePath);
@@ -116,6 +116,11 @@ class CastleLibrary {
     const mediaFiles = entries.filter(
       (entry) => entry.kind === 'file' && !isHiddenItemFile(entry.name),
     );
+    return { directory, entries, mediaFiles, metadata, version };
+  }
+
+  async card(relativeDirectory) {
+    const { directory, mediaFiles, metadata, version } = await this.directoryData(relativeDirectory);
 
     return {
       path: directory.relativePath,
@@ -139,21 +144,21 @@ class CastleLibrary {
   }
 
   async browse(relativeDirectory = '') {
-    const directory = await this.guard.resolveExisting(relativeDirectory, 'directory');
-    const allEntries = await this.listEntries(directory.relativePath);
-    const version = this.versionFor(
-      directory.relativePath,
-      allEntries.filter((entry) => entry.kind !== 'file' || !isIgnoredSystemFile(entry.name)),
-    );
-    const entries = allEntries.filter(
+    const { directory, entries: allEntries, mediaFiles, metadata, version } = await this.directoryData(relativeDirectory);
+    const visibleEntries = allEntries.filter(
       (entry) => entry.kind !== 'file' || !isHiddenItemFile(entry.name),
     );
     return {
       path: directory.relativePath,
       title: directory.relativePath ? path.basename(directory.absolutePath) : 'Castle',
+      artist: metadata.artist || '',
+      type: inferCollectionType(mediaFiles.map((file) => file.name)),
+      description: metadata.description || '',
+      rating: metadata.rating || '',
+      mediaCount: mediaFiles.length,
       thumbnailUrl: `/thumbnail?path=${encodeURIComponent(directory.relativePath)}&v=${version}`,
       breadcrumb: breadcrumb(directory.relativePath),
-      entries: entries.map(({ mtimeMs, ...entry }) => ({
+      entries: visibleEntries.map(({ mtimeMs, ...entry }) => ({
         ...entry,
         mediaUrl: entry.kind === 'file' ? `/media?path=${encodeURIComponent(entry.path)}` : null,
       })),

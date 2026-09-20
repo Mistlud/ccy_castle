@@ -234,6 +234,8 @@ Show:
 
 - explorer label, current-folder thumbnail, and compact current title in that order
 - centered 4:3 current-folder thumbnail, larger than the earlier 16:9 presentation
+- optional metadata description below the folder title
+- compact artist, inferred type, media-count, and rating summary
 - breadcrumb from `castle`
 - child directories
 - files
@@ -464,6 +466,8 @@ The server may cache:
 but cache must never become a second source of truth.
 
 Card folder state must be checked when card data is rebuilt. Cache-relevant file changes invalidate the related thumbnail identity automatically. Versioned thumbnail URLs prevent stale browser cache reuse, and the manual refresh action must invalidate all server-generated thumbnails without touching library source files.
+
+Static HTML, JavaScript, CSS, and placeholder assets should use `no-cache` so deployed UI changes are revalidated in normal browser sessions. Content-versioned library thumbnails may remain immutable.
 
 A server restart must be able to reconstruct state from `castle`.
 

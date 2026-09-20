@@ -69,6 +69,11 @@ test('falls back to folder name and inferred type for malformed metadata', async
 
 test('returns safe relative explorer entries and breadcrumbs', async () => {
   const result = await library.browse('Movies/Interstellar');
+  assert.equal(result.artist, 'Christopher Nolan');
+  assert.equal(result.description, 'Personal library item');
+  assert.equal(result.rating, '12세 관람가');
+  assert.equal(result.type, 'video');
+  assert.equal(result.mediaCount, 1);
   assert.match(result.thumbnailUrl, /&v=[a-f0-9]{16}$/);
   assert.deepEqual(result.breadcrumb.map((entry) => entry.path), ['', 'Movies', 'Movies/Interstellar']);
   assert.equal(result.entries.find((entry) => entry.name === 'movie.mkv').mediaType, 'video');

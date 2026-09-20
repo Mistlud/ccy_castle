@@ -171,7 +171,7 @@ Home
 
 Cards should be mobile-first and easy to scan with one hand.
 
-Inside a folder, the Explorer heading should show the Explorer label, current-folder thumbnail, and a compact folder title in that order. Each folder or file row should open or play from the whole row instead of a separate trailing action button.
+Inside a folder, the Explorer heading should show the Explorer label, current-folder thumbnail, compact folder title, optional description, and an artist/type/media-count/rating summary in that order. Each folder or file row should open or play from the whole row instead of a separate trailing action button.
 
 Preferred card content:
 
@@ -257,6 +257,8 @@ Generated thumbnails should be cached and original media files must not be modif
 Card thumbnail URLs should carry a version derived from the card folder's relevant direct contents. Changes to metadata, an explicit thumbnail, or media contents must produce a new thumbnail URL on the next scan, while `Thumbs.db` must be ignored. A top-bar **라이브러리 새로고침** action should force a rescan, reread metadata, advance all thumbnail versions, remove only generated thumbnails, and reload the current view.
 
 The Explorer thumbnail should be centered, use a 4:3 ratio, and be larger than the original presentation. Its folder title should be compact, and custom corner radii throughout the UI should be reduced to half or less of their original values.
+
+Static UI assets should use `no-cache` so a normal browser session revalidates deployments, while content-versioned library thumbnails may retain immutable caching.
 
 ---
 

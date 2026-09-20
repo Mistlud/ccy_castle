@@ -33,7 +33,7 @@ function navigate(kind, path = '') {
   else location.hash = target;
 }
 
-function heading(eyebrow, title, description, { thumbnailUrl = '', compact = false } = {}) {
+function heading(eyebrow, title, description, { thumbnailUrl = '', compact = false, metadata = '' } = {}) {
   const wrapper = element('header', compact ? 'page-heading explorer-heading' : 'page-heading');
   wrapper.append(element('span', 'eyebrow', eyebrow));
   if (thumbnailUrl) {
@@ -45,6 +45,7 @@ function heading(eyebrow, title, description, { thumbnailUrl = '', compact = fal
   }
   wrapper.append(element('h1', '', title));
   if (description) wrapper.append(element('p', '', description));
+  if (metadata) wrapper.append(element('span', 'meta-line heading-meta', metadata));
   return wrapper;
 }
 
@@ -218,9 +219,16 @@ async function renderBrowse(path) {
   const browse = await api(`/api/browse?path=${encodeURIComponent(path)}`);
   const content = document.createDocumentFragment();
   content.append(renderBreadcrumb(browse.breadcrumb));
-  content.append(heading('Explorer', browse.title, '읽기 전용 폴더 탐색', {
+  const metadata = [
+    browse.artist,
+    browse.type,
+    `미디어 ${browse.mediaCount}개`,
+    browse.rating ? `등급 ${browse.rating}` : '',
+  ].filter(Boolean).join(' · ');
+  content.append(heading('Explorer', browse.title, browse.description || '읽기 전용 폴더 탐색', {
     thumbnailUrl: browse.thumbnailUrl,
     compact: true,
+    metadata,
   }));
   renderEntries(browse, content);
   app.replaceChildren(content);

@@ -153,6 +153,7 @@ button { font: inherit; }
 .card-copy strong { display: block; overflow: hidden; font-size: 1.05rem; text-overflow: ellipsis; white-space: nowrap; }
 .card-copy p { display: -webkit-box; margin: .4rem 0; overflow: hidden; color: var(--muted); font-size: .85rem; line-height: 1.35; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .meta-line { color: #c7ced9; font-size: .75rem; }
+.heading-meta { display: block; margin-top: .6rem; }
 
 .section-title { margin: 1.8rem 0 .8rem; font-size: .95rem; }
 .entry-list { display: grid; gap: .55rem; }

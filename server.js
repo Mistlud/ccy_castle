@@ -199,7 +199,7 @@ async function createCastleServer({ root, cacheDirectory, ffmpegAvailable, logge
 
       if (STATIC_FILES.has(url.pathname)) {
         await serveFile(request, response, path.join(PUBLIC_DIRECTORY, STATIC_FILES.get(url.pathname)), {
-          cacheControl: url.pathname === '/' ? 'no-cache' : 'public, max-age=3600',
+          cacheControl: 'no-cache',
         });
         return;
       }

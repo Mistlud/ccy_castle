@@ -68,6 +68,14 @@ test('refreshes library revisions and applies immutable caching only to versione
   assert.match(await home.text(), /id="refresh-library"/);
 });
 
+test('serves every static UI asset with no-cache', async () => {
+  for (const pathname of ['/', '/app.js', '/styles.css', '/placeholder.svg']) {
+    const response = await fetch(`${baseUrl}${pathname}`);
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('cache-control'), 'no-cache');
+  }
+});
+
 test('rejects encoded, mixed-slash, and absolute traversal without leaking host paths', async () => {
   const attempts = [
     '..%2Foutside.txt',
