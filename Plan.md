@@ -295,15 +295,20 @@ Audio should play inside the web page.
 
 Use native browser audio capabilities.
 
-The player should show at least:
+Selecting a track should open a custom expanded view backed by the native browser audio element. Use a bottom-right card on desktop and a full-height bottom sheet on mobile. A visible top handle must collapse and restore the player by click; on touch devices the same handle must support downward and upward swipe gestures. The collapsed form remains a fixed bottom row.
 
+The expanded player should show:
+
+- the current folder's versioned 4:3 thumbnail
 - track name
-- play/pause
-- current time
-- duration
-- seek control
+- seek control with current and total time below its opposite ends
+- large previous, play/pause, and next controls
+- a horizontal volume control
+- compact playlist, playback-mode, and current-folder controls
 
-A fixed bottom player is preferred if simple.
+The playlist must contain the current folder's direct audio files in existing order, use internal scrolling in the thumbnail area, identify the current track, and allow direct track selection. The playback-mode control cycles between continuous folder playback, stopping after the current track, and repeating the current track. The folder control returns to the playback folder and collapses the player. Video behavior remains separate and unchanged.
+
+Long current-track names should remain fully discoverable in expanded and collapsed states. Animate only genuinely overflowing titles horizontally between both ends, pause briefly at each endpoint, recompute after player-state or viewport changes, and provide a non-animated wrapping fallback for reduced-motion users.
 
 If multiple audio files exist in one folder, a basic track list and previous/next behavior are useful.
 

@@ -42,6 +42,12 @@ Use the **라이브러리 새로고침** button in the top bar for manual recove
 
 The Explorer header shows its label, a centered 4:3 current-folder thumbnail, and then a compact folder title. Under the title it shows the optional description plus a compact line containing available artist, inferred media type, media count, and rating values. The thumbnail grows to a maximum width of `42rem`, while the Explorer title uses a smaller responsive size than the other page headings. Folder and file rows are single large click targets: folders navigate, audio starts playback, video opens the inline player, and images or other files open in a new tab. Separate `열기`, `재생`, and `보기` buttons are not used. Custom panel and control corner radii stay within `0.3rem` to `0.45rem` instead of using heavily rounded cards.
 
+Selecting an audio file opens an expanded player that uses the current folder's versioned 4:3 thumbnail. On desktop it is a compact bottom-right card; on mobile it becomes a full-height bottom sheet. The top handle collapses or restores it by click, and touch users can also swipe the handle down or up. The collapsed state remains a fixed bottom row with native browser audio controls.
+
+The expanded player provides a seek bar with current and total times, large previous/play-pause/next controls, a volume slider, and three compact utility controls. The playlist control replaces the thumbnail with an internally scrolling list of every direct audio file in the current folder. The mode control cycles through continuous folder playback, stop after the current track, and repeat the current track. The folder control collapses the player and returns to the folder where playback started. Automatic track changes do not reopen a player that the user collapsed, and video playback remains unchanged.
+
+Long filenames in both player states are measured after track changes, view changes, and window resizes. Only overflowing titles pan horizontally in both directions, with endpoint pauses and a duration based on the hidden text width. Short titles remain still. Reduced-motion users receive a wrapped full title instead, and the complete filename is also available through the title tooltip.
+
 ## Development and automated checks on PC #1
 
 No runtime packages need to be installed.
@@ -139,10 +145,11 @@ With the server running on PC #2 and the phone connected to the same Wi-Fi:
 6. Change `meta.json` or `thumbnail.jpg`, press **라이브러리 새로고침**, and confirm the card updates without a browser hard refresh.
 7. Browse into nested directories and confirm breadcrumbs never navigate above Castle.
 8. Open an original image.
-9. Play and seek audio; test previous/next when a folder contains multiple tracks.
-10. Play a browser-supported video and seek to a later position.
-11. Confirm malformed or missing `meta.json` does not break the page.
-12. Confirm the server stays responsive during normal playback.
+9. Play audio and confirm the expanded player shows the current folder thumbnail, seeking and time values work, previous/play-pause/next and volume controls respond, and a long title reveals both ends.
+10. Open the in-player playlist, select another track, cycle all three playback modes, use the folder-return control, and collapse/restore the player by click on desktop and handle swipe on Android.
+11. Play a browser-supported video and seek to a later position.
+12. Confirm malformed or missing `meta.json` does not break the page.
+13. Confirm the server stays responsive during normal playback.
 
 Some codecs, including some MKV codec combinations, may not play directly in a mobile browser. The MVP serves the original file and does not transcode it.
 

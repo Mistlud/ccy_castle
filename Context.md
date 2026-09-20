@@ -200,8 +200,11 @@ Preferred card content:
 ### Audio
 
 - Play inside the web application.
-- Use a dedicated browser audio player.
-- A fixed bottom player is desirable if simple.
+- Use the native browser audio element as the playback engine behind a dedicated Castle player.
+- Open as a bottom-right expanded card on desktop and a full-height bottom sheet on mobile, with a visible click/swipe handle and a fixed bottom-row collapsed state.
+- Use the current folder's versioned 4:3 thumbnail and allow its area to switch to an internally scrolling current-folder playlist.
+- Provide seek/time, previous/play-pause/next, volume, three playback-end modes, and return-to-folder controls.
+- Long current-track filenames should pan horizontally only when they overflow in either player state, while reduced-motion users should see a wrapped full title.
 
 ### Other files
 

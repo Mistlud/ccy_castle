@@ -1,5 +1,58 @@
 # Castle progress
 
+## 2026-09-20 — Expandable audio player
+
+Status: implementation and automated verification complete; desktop and Android interaction checks remain user-controlled.
+
+### Implemented
+
+- Replaced the single fixed audio row with an expanded/collapsed player backed by the same native browser audio element.
+- Added a bottom-right desktop card and a full-height mobile bottom sheet using the current folder's versioned 4:3 thumbnail.
+- Added visible click handles and touch swipe-down/swipe-up gestures for collapsing and restoring the player; automatic track changes preserve the user's collapsed state.
+- Added a custom seek bar, current and total time, large previous/play-pause/next controls, a volume slider, and mute recovery.
+- Added a thumbnail-area playlist for the current folder's direct audio files, internal scrolling, current-track highlighting, and direct selection.
+- Added a three-state playback mode: continuous folder playback, stop after the current track, and repeat the current track.
+- Added a current-folder control that collapses the player and returns to the folder where playback started.
+- Preserved native controls in the collapsed row, overflow-aware title movement in both views, reduced-motion behavior, and existing inline video behavior.
+- Did not change metadata parsing, `meta.json` handling, server APIs, or thumbnail cache rules.
+
+### Verified on PC #1
+
+- `npm run check`: passed.
+- `npm test`: 21 tests passed, 0 failed, 0 skipped.
+- Query-selector audit: all 30 referenced element IDs exist in `public/index.html`, with no duplicate IDs.
+- `git diff --check`: passed.
+
+### Remaining manual checks
+
+- Confirm desktop sizing and placement, every custom control, playlist scrolling, all playback modes, folder return, and expanded/collapsed title movement in a real browser.
+- Confirm mobile full-height layout, handle swipe thresholds, playlist scrolling without gesture conflicts, safe-area spacing, and background scroll locking on Android.
+- Confirm automatic next-track changes do not reopen a player that was manually collapsed.
+
+## 2026-09-20 — Overflowing current-track title
+
+Status: implementation and static verification complete; browser animation confirmation remains user-controlled.
+
+### Implemented
+
+- Added layout-based overflow detection for the current audio filename after track changes and viewport resizes.
+- Added a width-aware horizontal back-and-forth animation only for overflowing titles, with pauses at both endpoints.
+- Preserved static rendering for short filenames and added the complete filename as the title tooltip.
+- Added a wrapped, non-animated full-title fallback for users who prefer reduced motion.
+- Left Explorer file-list truncation behavior unchanged.
+
+### Verified on PC #1
+
+- `npm run check`: passed.
+- `npm test`: 21 tests passed, 0 failed, 0 skipped.
+- `git diff --check`: passed.
+
+### Remaining manual checks
+
+- Play an audio file with a long name and confirm the current-track title reveals both ends without clipping.
+- Resize or rotate the viewport and confirm the animation distance is recalculated.
+- Confirm short titles remain stationary and the reduced-motion fallback wraps instead of animating.
+
 ## 2026-09-20 — Explorer metadata and current UI assets
 
 Status: implementation and automated verification complete; browser UI confirmation remains user-controlled.

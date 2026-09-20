@@ -20,14 +20,64 @@
   </main>
 
   <section id="audio-dock" class="audio-dock" hidden aria-label="오디오 플레이어">
-    <div class="track-summary">
-      <span class="eyebrow">현재 재생</span>
-      <strong id="audio-title">—</strong>
+    <button id="player-collapse-handle" class="player-handle player-handle-collapse" type="button" aria-label="플레이어 내리기">
+      <span class="handle-bar" aria-hidden="true"></span>
+      <span class="handle-label">플레이어 내리기</span>
+    </button>
+
+    <div id="expanded-player" class="expanded-player">
+      <div class="player-visual">
+        <img id="audio-thumbnail" src="/placeholder.svg" alt="">
+        <section id="audio-playlist" class="audio-playlist" aria-label="현재 폴더 재생목록" hidden>
+          <strong>현재 폴더 재생목록</strong>
+          <ol id="audio-playlist-items"></ol>
+        </section>
+      </div>
+
+      <div class="track-summary track-summary-expanded">
+        <span class="eyebrow">현재 재생</span>
+        <strong id="audio-title">—</strong>
+      </div>
+
+      <div class="seek-box">
+        <input id="audio-seek" type="range" min="0" max="0" value="0" step="0.1" aria-label="재생 위치">
+        <div class="time-row" aria-live="off">
+          <time id="audio-current-time">0:00</time>
+          <time id="audio-duration">--:--</time>
+        </div>
+      </div>
+
+      <div class="transport-controls">
+        <button id="previous-track" type="button" aria-label="이전 트랙">〈</button>
+        <button id="toggle-playback" class="primary-transport" type="button" aria-label="재생">▶</button>
+        <button id="next-track" type="button" aria-label="다음 트랙">〉</button>
+      </div>
+
+      <div class="volume-controls">
+        <button id="toggle-mute" type="button" aria-label="음소거">♪</button>
+        <input id="audio-volume" type="range" min="0" max="1" value="1" step="0.01" aria-label="음량">
+      </div>
+
+      <div class="utility-controls">
+        <button id="toggle-playlist" type="button" title="재생목록" aria-label="재생목록 열기" aria-controls="audio-playlist" aria-pressed="false"><span aria-hidden="true">☷</span><small id="playlist-control-label">목록</small></button>
+        <button id="cycle-playback-mode" type="button" title="연속 재생" aria-label="재생 모드: 연속 재생"><span id="playback-mode-symbol" aria-hidden="true">∞</span><small id="playback-mode-label">연속</small></button>
+        <button id="go-to-audio-folder" type="button" title="현재 트랙 폴더로 이동" aria-label="현재 트랙 폴더로 이동"><span aria-hidden="true">▰</span><small>폴더</small></button>
+      </div>
     </div>
-    <audio id="audio-player" controls preload="metadata"></audio>
-    <div class="track-controls">
-      <button id="previous-track" type="button" aria-label="이전 트랙">이전</button>
-      <button id="next-track" type="button" aria-label="다음 트랙">다음</button>
+
+    <div id="collapsed-player" class="collapsed-player" hidden>
+      <button id="player-expand-handle" class="player-handle player-handle-expand" type="button" aria-label="플레이어 올리기">
+        <span class="handle-bar" aria-hidden="true"></span>
+      </button>
+      <div class="track-summary track-summary-collapsed">
+        <span class="eyebrow">현재 재생</span>
+        <strong id="audio-title-collapsed">—</strong>
+      </div>
+      <audio id="audio-player" controls preload="metadata"></audio>
+      <div class="compact-track-controls">
+        <button id="compact-previous-track" type="button" aria-label="이전 트랙">〈</button>
+        <button id="compact-next-track" type="button" aria-label="다음 트랙">〉</button>
+      </div>
     </div>
   </section>
 
