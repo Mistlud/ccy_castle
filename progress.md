@@ -1,8 +1,8 @@
 # Castle progress
 
-## 2026-09-20 — LAN MVP implementation on PC #1
+## 2026-09-20 — LAN MVP implementation and validation
 
-Status: implementation, PC #1 automated verification, and PC #1-to-Android LAN playback verification complete. PC #2 deployment and final-host validation remain for the user.
+Status: LAN MVP implementation, automated verification, PC #2 deployment, and Android LAN validation complete.
 
 ### Implemented
 
@@ -37,22 +37,24 @@ Status: implementation, PC #1 automated verification, and PC #1-to-Android LAN p
 - Confirmed normal media playback on the phone.
 - Confirmed that the earlier `ERR_SSL_PROTOCOL_ERROR` came from attempting HTTPS against the HTTP-only LAN server; explicitly using `http://` resolved it.
 
-### Assumptions
+### Final-host validation with PC #2 and Android
 
-- PC #2 will use Node.js LTS 20 or newer.
-- The actual local Windows path corresponding to `domination\castle` will be supplied on PC #2; no drive letter is assumed.
+- Started the server successfully on PC #2, the intended final host.
+- Connected from an Android phone over the same LAN and opened the Castle site successfully.
+- The user confirmed the remaining LAN MVP acceptance work complete.
+
+### Runtime notes
+
+- PC #2 uses its actual local Castle path rather than the SMB UNC path as the configured root.
 - Port `8080` is the default and can be changed.
 - Browser codec support determines whether a particular original video plays; the MVP does not transcode.
 - PC #2 does not need `ffmpeg`; missing video thumbnails degrade to image or placeholder fallback.
 
-### Still requiring real-device validation
+### Completion
 
-- Install Node.js LTS and copy the project to PC #2.
-- Start against PC #2's confirmed local Castle path.
-- Add the Private-profile, `LocalSubnet` Windows Firewall rule for the chosen port.
-- Open PC #2's LAN URL from the Android phone on the same Wi-Fi.
-- Validate the actual PC #2 library's image, audio, and video files, including video seeking and device codec behavior.
-- Validate touch usability, long-running playback responsiveness, and the real library's metadata and thumbnail conventions.
+- The LAN MVP definition of done is satisfied.
+- No required implementation or validation work remains within the agreed MVP scope.
+- Internet exposure, authentication, executable packaging, and MyOnOff integration remain intentionally out of scope.
 
 ### Git state
 
