@@ -6,6 +6,8 @@ const audioPlayer = document.querySelector('#audio-player');
 const audioTitle = document.querySelector('#audio-title');
 const audioTitleCollapsed = document.querySelector('#audio-title-collapsed');
 const audioThumbnail = document.querySelector('#audio-thumbnail');
+const audioThumbnailCollapsed = document.querySelector('#audio-thumbnail-collapsed');
+const audioFolderTitleCollapsed = document.querySelector('#audio-folder-title-collapsed');
 const audioPlaylist = document.querySelector('#audio-playlist');
 const audioPlaylistItems = document.querySelector('#audio-playlist-items');
 const audioSeek = document.querySelector('#audio-seek');
@@ -20,6 +22,7 @@ const previousTrack = document.querySelector('#previous-track');
 const nextTrack = document.querySelector('#next-track');
 const compactPreviousTrack = document.querySelector('#compact-previous-track');
 const compactNextTrack = document.querySelector('#compact-next-track');
+const compactTogglePlayback = document.querySelector('#compact-toggle-playback');
 const togglePlayback = document.querySelector('#toggle-playback');
 const toggleMute = document.querySelector('#toggle-mute');
 const togglePlaylist = document.querySelector('#toggle-playlist');
@@ -153,6 +156,8 @@ function updatePlaybackButton() {
   const isPlaying = !audioPlayer.paused && !audioPlayer.ended;
   togglePlayback.textContent = isPlaying ? 'Ⅱ' : '▶';
   togglePlayback.setAttribute('aria-label', isPlaying ? '일시정지' : '재생');
+  compactTogglePlayback.textContent = isPlaying ? 'Ⅱ' : '▶';
+  compactTogglePlayback.setAttribute('aria-label', isPlaying ? '일시정지' : '재생');
 }
 
 function updateVolumeControls() {
@@ -232,8 +237,14 @@ function playTrack(queue, index, folder = audioFolder, { expand = false } = {}) 
   audioTitle.title = track.name;
   audioTitleCollapsed.textContent = track.name;
   audioTitleCollapsed.title = track.name;
-  if (audioFolder?.thumbnailUrl) audioThumbnail.src = audioFolder.thumbnailUrl;
+  audioFolderTitleCollapsed.textContent = audioFolder?.title || '현재 폴더';
+  audioFolderTitleCollapsed.title = audioFolder?.title || '';
+  if (audioFolder?.thumbnailUrl) {
+    audioThumbnail.src = audioFolder.thumbnailUrl;
+    audioThumbnailCollapsed.src = audioFolder.thumbnailUrl;
+  }
   audioThumbnail.alt = audioFolder?.title ? `${audioFolder.title} 썸네일` : '';
+  audioThumbnailCollapsed.alt = audioFolder?.title ? `${audioFolder.title} 썸네일` : '';
   renderAudioPlaylist();
   if (expand) setPlaylistVisible(false);
   if (expand || wasHidden) setPlayerExpanded(true);
@@ -484,10 +495,12 @@ previousTrack.addEventListener('click', () => playAdjacentTrack(-1));
 nextTrack.addEventListener('click', () => playAdjacentTrack(1));
 compactPreviousTrack.addEventListener('click', () => playAdjacentTrack(-1));
 compactNextTrack.addEventListener('click', () => playAdjacentTrack(1));
-togglePlayback.addEventListener('click', () => {
+function toggleAudioPlayback() {
   if (audioPlayer.paused) audioPlayer.play().catch(() => {});
   else audioPlayer.pause();
-});
+}
+togglePlayback.addEventListener('click', toggleAudioPlayback);
+compactTogglePlayback.addEventListener('click', toggleAudioPlayback);
 audioSeek.addEventListener('input', () => {
   if (Number.isFinite(audioPlayer.duration)) audioPlayer.currentTime = Number(audioSeek.value);
   updatePlayerTime();
@@ -522,6 +535,7 @@ audioPlayer.addEventListener('play', updatePlaybackButton);
 audioPlayer.addEventListener('pause', updatePlaybackButton);
 audioPlayer.addEventListener('volumechange', updateVolumeControls);
 audioPlayer.addEventListener('ended', () => {
+  updatePlaybackButton();
   if (playbackMode === 'repeat-one') {
     audioPlayer.currentTime = 0;
     audioPlayer.play().catch(() => {});

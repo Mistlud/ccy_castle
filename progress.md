@@ -1,5 +1,31 @@
 # Castle progress
 
+## 2026-09-20 — Compact collapsed audio player
+
+Status: implementation and automated verification complete; browser layout confirmation remains user-controlled.
+
+### Implemented
+
+- Replaced the collapsed native seek-control layout with a single custom playback row.
+- Added a small square versioned folder thumbnail, overflow-aware current filename, and a muted folder-name subtitle.
+- Added compact previous, synchronized play-pause, and next controls at the right edge.
+- Slightly increased the content-row height and balanced its bottom and mobile safe-area spacing.
+- Kept the existing click/swipe expansion handle and expanded-player controls unchanged.
+- Reused the existing Explorer folder title and thumbnail response, so metadata parsing and server behavior remain unchanged.
+
+### Verified on PC #1
+
+- `npm run check`: passed.
+- `npm test`: 21 tests passed, 0 failed, 0 skipped.
+- Query-selector audit: every referenced element ID exists in `public/index.html`, with no duplicate IDs.
+- `git diff --check`: passed.
+
+### Remaining manual checks
+
+- Confirm the collapsed row has balanced vertical spacing at the intended desktop and Android widths.
+- Confirm long filenames move correctly without covering the folder subtitle or transport controls.
+- Confirm the thumbnail, folder name, and play-pause state update when switching tracks and folders.
+
 ## 2026-09-20 — Expandable audio player
 
 Status: implementation and automated verification complete; desktop and Android interaction checks remain user-controlled.

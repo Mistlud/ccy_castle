@@ -295,7 +295,7 @@ Audio should play inside the web page.
 
 Use native browser audio capabilities.
 
-Selecting a track should open a custom expanded view backed by the native browser audio element. Use a bottom-right card on desktop and a full-height bottom sheet on mobile. A visible top handle must collapse and restore the player by click; on touch devices the same handle must support downward and upward swipe gestures. The collapsed form remains a fixed bottom row.
+Selecting a track should open a custom expanded view backed by the native browser audio element. Use a bottom-right card on desktop and a full-height bottom sheet on mobile. A visible top handle must collapse and restore the player by click; on touch devices the same handle must support downward and upward swipe gestures. The collapsed form remains a fixed, single-row player with a square folder thumbnail, overflowing track name over a muted folder-name subtitle, compact previous/play-pause/next controls, and balanced bottom/safe-area spacing. Do not show the native seek control in the collapsed row.
 
 The expanded player should show:
 
