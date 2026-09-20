@@ -19,6 +19,7 @@ before(async () => {
   await fs.mkdir(path.join(temporaryDirectory, 'Photos'), { recursive: true });
   await fs.writeFile(path.join(temporaryDirectory, 'Movies', 'Interstellar', 'movie.mkv'), 'video');
   await fs.writeFile(path.join(temporaryDirectory, 'Movies', 'Interstellar', 'Thumbnail.JPG'), 'thumbnail');
+  await fs.writeFile(path.join(temporaryDirectory, 'Movies', 'Interstellar', 'Thumbs.DB'), 'system thumbnail cache');
   await fs.writeFile(path.join(temporaryDirectory, 'Movies', 'Interstellar', 'meta.json'), JSON.stringify({
     title: '인터스텔라',
     artist: 'Christopher Nolan',
@@ -71,7 +72,7 @@ test('returns safe relative explorer entries and breadcrumbs', async () => {
   assert.match(result.thumbnailUrl, /&v=[a-f0-9]{16}$/);
   assert.deepEqual(result.breadcrumb.map((entry) => entry.path), ['', 'Movies', 'Movies/Interstellar']);
   assert.equal(result.entries.find((entry) => entry.name === 'movie.mkv').mediaType, 'video');
-  assert.equal(result.entries.some((entry) => ['meta.json', 'thumbnail.jpg'].includes(entry.name.toLowerCase())), false);
+  assert.equal(result.entries.some((entry) => ['meta.json', 'thumbnail.jpg', 'thumbs.db'].includes(entry.name.toLowerCase())), false);
   assert.ok(result.entries.every((entry) => !path.isAbsolute(entry.path)));
 });
 
@@ -91,6 +92,9 @@ test('versions thumbnail URLs when metadata, thumbnails, contents, or manual rev
   await fs.writeFile(path.join(itemPath, 'extra.mp3'), 'audio');
   const afterContents = (await library.card('Movies/Versioned')).thumbnailUrl;
   assert.notEqual(afterContents, afterThumbnail);
+
+  await fs.writeFile(path.join(itemPath, 'Thumbs.db'), 'ignored system file');
+  assert.equal((await library.card('Movies/Versioned')).thumbnailUrl, afterContents);
 
   library.invalidate();
   assert.notEqual((await library.card('Movies/Versioned')).thumbnailUrl, afterContents);

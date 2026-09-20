@@ -28,7 +28,7 @@ castle/
 
 `meta.json` may contain the string fields `title`, `artist`, `description`, and `rating`. `rating` is a free-form label such as `"12세 관람가"`. Missing or malformed metadata falls back to the folder name; media type is always inferred from the contained files.
 
-`meta.json` and `thumbnail.jpg` are card support files. They are used by Castle but omitted from explorer listings and media counts, case-insensitively.
+`meta.json` and `thumbnail.jpg` are card support files. They are used by Castle but omitted from explorer listings and media counts, case-insensitively. Windows-generated `Thumbs.db` files are also hidden and excluded from media counts and thumbnail cache fingerprints.
 
 ## Refresh and thumbnail caching
 
@@ -38,7 +38,7 @@ Use the **라이브러리 새로고침** button in the top bar for manual recove
 
 ## Explorer interaction
 
-The Explorer header shows its label, the current folder thumbnail, and then a compact folder title. Folder and file rows are single large click targets: folders navigate, audio starts playback, video opens the inline player, and images or other files open in a new tab. Separate `열기`, `재생`, and `보기` buttons are not used.
+The Explorer header shows its label, a centered 4:3 current-folder thumbnail, and then a compact folder title. The thumbnail grows to a maximum width of `42rem`, while the Explorer title uses a smaller responsive size than the other page headings. Folder and file rows are single large click targets: folders navigate, audio starts playback, video opens the inline player, and images or other files open in a new tab. Separate `열기`, `재생`, and `보기` buttons are not used. Custom panel and control corner radii stay within `0.3rem` to `0.45rem` instead of using heavily rounded cards.
 
 ## Development and automated checks on PC #1
 

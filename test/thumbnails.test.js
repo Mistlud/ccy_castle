@@ -56,6 +56,9 @@ test('generates and reuses a cached video thumbnail when ffmpeg is available', a
   const reused = await service.find('Video');
   assert.equal(reused, generated);
 
+  await fs.writeFile(path.join(root, 'Video', 'Thumbs.db'), 'ignored system file');
+  assert.equal(await service.find('Video'), generated);
+
   await fs.writeFile(path.join(root, 'Video', 'meta.json'), '{"title":"Changed"}');
   const regenerated = await service.find('Video');
   assert.notEqual(regenerated, generated);

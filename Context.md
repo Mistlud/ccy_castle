@@ -239,6 +239,7 @@ Rules:
 - Folder name is the fallback title.
 - Type is inferred from contained files.
 - `meta.json` and `thumbnail.jpg` are internal card support files and are hidden from explorer listings and media counts.
+- Windows-generated `Thumbs.db` files are hidden from explorer listings, excluded from media counts, and ignored by thumbnail cache fingerprints.
 
 Thumbnail priority:
 
@@ -253,7 +254,9 @@ Do not make ffmpeg mandatory for the application to function.
 
 Generated thumbnails should be cached and original media files must not be modified.
 
-Card thumbnail URLs should carry a version derived from the card folder's direct contents. Changes to metadata, an explicit thumbnail, or folder contents must produce a new thumbnail URL on the next scan. A top-bar **라이브러리 새로고침** action should force a rescan, reread metadata, advance all thumbnail versions, remove only generated thumbnails, and reload the current view.
+Card thumbnail URLs should carry a version derived from the card folder's relevant direct contents. Changes to metadata, an explicit thumbnail, or media contents must produce a new thumbnail URL on the next scan, while `Thumbs.db` must be ignored. A top-bar **라이브러리 새로고침** action should force a rescan, reread metadata, advance all thumbnail versions, remove only generated thumbnails, and reload the current view.
+
+The Explorer thumbnail should be centered, use a 4:3 ratio, and be larger than the original presentation. Its folder title should be compact, and custom corner radii throughout the UI should be reduced to half or less of their original values.
 
 ---
 

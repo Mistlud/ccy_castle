@@ -52,7 +52,7 @@ button { font: inherit; }
 .lan-badge {
   padding: .2rem .45rem;
   border: 1px solid rgba(213,255,99,.35);
-  border-radius: 999px;
+  border-radius: .35rem;
   color: var(--accent);
   font-size: .66rem;
   font-weight: 800;
@@ -64,7 +64,7 @@ button { font: inherit; }
   margin-left: auto;
   padding: .45rem .7rem;
   border: 1px solid #3b4453;
-  border-radius: .7rem;
+  border-radius: .35rem;
   color: #fff;
   background: #252b36;
   font-size: .78rem;
@@ -91,8 +91,8 @@ button { font: inherit; }
 }
 .page-heading h1 { margin: 0; font-size: clamp(1.7rem, 8vw, 3rem); letter-spacing: -.045em; }
 .page-heading p { margin: .55rem 0 0; color: var(--muted); line-height: 1.5; }
-.folder-thumbnail { display: block; width: min(100%, 32rem); margin: 0 0 1rem; aspect-ratio: 16 / 9; border-radius: 1rem; object-fit: cover; background: #252b36; }
-.explorer-heading h1 { font-size: clamp(1.35rem, 6vw, 2.2rem); }
+.folder-thumbnail { display: block; width: min(100%, 42rem); margin: 0 auto 1rem; aspect-ratio: 4 / 3; border-radius: .4rem; object-fit: cover; background: #252b36; }
+.explorer-heading h1 { font-size: clamp(1.15rem, 4.5vw, 1.75rem); }
 
 .breadcrumb {
   display: flex;
@@ -123,7 +123,7 @@ button { font: inherit; }
   min-height: 5rem;
   padding: 1rem 1.1rem;
   border: 1px solid var(--line);
-  border-radius: 1rem;
+  border-radius: .45rem;
   color: #fff;
   background: linear-gradient(135deg, var(--panel-raised), var(--panel));
   text-align: left;
@@ -142,7 +142,7 @@ button { font: inherit; }
   padding: 0;
   overflow: hidden;
   border: 1px solid var(--line);
-  border-radius: 1rem;
+  border-radius: .45rem;
   color: inherit;
   background: var(--panel);
   text-align: left;
@@ -165,7 +165,7 @@ button { font: inherit; }
   min-height: 3.8rem;
   padding: .7rem .75rem;
   border: 1px solid var(--line);
-  border-radius: .85rem;
+  border-radius: .4rem;
   color: inherit;
   background: var(--panel);
   font: inherit;
@@ -173,17 +173,17 @@ button { font: inherit; }
   text-decoration: none;
   cursor: pointer;
 }
-.entry-icon { display: grid; place-items: center; width: 2.2rem; height: 2.2rem; border-radius: .65rem; background: #252b36; }
+.entry-icon { display: grid; place-items: center; width: 2.2rem; height: 2.2rem; border-radius: .3rem; background: #252b36; }
 .entry-copy { min-width: 0; }
 .entry-copy strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .entry-copy small { color: var(--muted); }
 .entry:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-.video-view { margin: 1rem 0; padding: .8rem; border: 1px solid var(--line); border-radius: 1rem; background: #050608; }
-.video-view video { display: block; width: 100%; max-height: 70vh; border-radius: .65rem; }
+.video-view { margin: 1rem 0; padding: .8rem; border: 1px solid var(--line); border-radius: .45rem; background: #050608; }
+.video-view video { display: block; width: 100%; max-height: 70vh; border-radius: .3rem; }
 .video-view strong { display: block; padding: .7rem .2rem .15rem; }
 
-.empty, .loading, .error { padding: 2rem 1rem; border: 1px dashed var(--line); border-radius: 1rem; color: var(--muted); text-align: center; }
+.empty, .loading, .error { padding: 2rem 1rem; border: 1px dashed var(--line); border-radius: .45rem; color: var(--muted); text-align: center; }
 .error { color: var(--danger); }
 
 .audio-dock {
@@ -206,7 +206,7 @@ button { font: inherit; }
 .track-summary strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .audio-dock audio { width: 100%; height: 2.5rem; }
 .track-controls { display: flex; gap: .35rem; }
-.track-controls button { min-height: 2.6rem; padding: .45rem .65rem; border: 1px solid #3b4453; border-radius: .65rem; color: #fff; background: #252b36; cursor: pointer; }
+.track-controls button { min-height: 2.6rem; padding: .45rem .65rem; border: 1px solid #3b4453; border-radius: .3rem; color: #fff; background: #252b36; cursor: pointer; }
 
 @media (min-width: 42rem) {
   .shell { padding-top: 2rem; }

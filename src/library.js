@@ -4,10 +4,15 @@ const path = require('node:path');
 const { inferCollectionType, mediaTypeFor } = require('./media-types');
 
 const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
-const CARD_SUPPORT_FILES = new Set(['meta.json', 'thumbnail.jpg']);
+const HIDDEN_ITEM_FILES = new Set(['meta.json', 'thumbnail.jpg', 'thumbs.db']);
+const IGNORED_SYSTEM_FILES = new Set(['thumbs.db']);
 
-function isCardSupportFile(filename) {
-  return CARD_SUPPORT_FILES.has(filename.toLowerCase());
+function isHiddenItemFile(filename) {
+  return HIDDEN_ITEM_FILES.has(filename.toLowerCase());
+}
+
+function isIgnoredSystemFile(filename) {
+  return IGNORED_SYSTEM_FILES.has(filename.toLowerCase());
 }
 
 function clientJoin(parent, child) {
@@ -104,9 +109,12 @@ class CastleLibrary {
     const directory = await this.guard.resolveExisting(relativeDirectory, 'directory');
     const entries = await this.listEntries(directory.relativePath);
     const metadata = await this.readMetadata(directory.absolutePath);
-    const version = this.versionFor(directory.relativePath, entries);
+    const version = this.versionFor(
+      directory.relativePath,
+      entries.filter((entry) => entry.kind !== 'file' || !isIgnoredSystemFile(entry.name)),
+    );
     const mediaFiles = entries.filter(
-      (entry) => entry.kind === 'file' && !isCardSupportFile(entry.name),
+      (entry) => entry.kind === 'file' && !isHiddenItemFile(entry.name),
     );
 
     return {
@@ -133,9 +141,12 @@ class CastleLibrary {
   async browse(relativeDirectory = '') {
     const directory = await this.guard.resolveExisting(relativeDirectory, 'directory');
     const allEntries = await this.listEntries(directory.relativePath);
-    const version = this.versionFor(directory.relativePath, allEntries);
+    const version = this.versionFor(
+      directory.relativePath,
+      allEntries.filter((entry) => entry.kind !== 'file' || !isIgnoredSystemFile(entry.name)),
+    );
     const entries = allEntries.filter(
-      (entry) => entry.kind !== 'file' || !isCardSupportFile(entry.name),
+      (entry) => entry.kind !== 'file' || !isHiddenItemFile(entry.name),
     );
     return {
       path: directory.relativePath,

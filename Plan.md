@@ -187,7 +187,8 @@ Rules:
 - rating is a free-form string label, not a numeric score
 - folder name is the default title
 - type is inferred from contained files
-- `meta.json` and `thumbnail.jpg` are hidden from explorer listings and media counts
+- `meta.json`, `thumbnail.jpg`, and Windows-generated `Thumbs.db` files are hidden from explorer listings and media counts
+- `Thumbs.db` must not change thumbnail versions or generated-thumbnail cache identities
 
 ---
 
@@ -217,7 +218,7 @@ Generated thumbnails should be cached separately from original media.
 
 Do not modify original files.
 
-Each card thumbnail URL must include a version derived from the direct folder entries. A change to `meta.json`, `thumbnail.jpg`, or the folder contents must produce a new URL on the next library scan. Generated thumbnail cache keys must also change with the relevant folder state so stale generated images are not reused.
+Each card thumbnail URL must include a version derived from the relevant direct folder entries. A change to `meta.json`, `thumbnail.jpg`, or media folder contents must produce a new URL on the next library scan. Ignored operating-system artifacts such as `Thumbs.db` must not change the version. Generated thumbnail cache keys must also change with the relevant folder state so stale generated images are not reused.
 
 The UI should provide a manual library refresh action that advances all thumbnail versions, rereads filesystem metadata, removes only generated thumbnail cache files, and reloads the current view.
 
@@ -232,6 +233,7 @@ This view also acts as the constrained file explorer.
 Show:
 
 - explorer label, current-folder thumbnail, and compact current title in that order
+- centered 4:3 current-folder thumbnail, larger than the earlier 16:9 presentation
 - breadcrumb from `castle`
 - child directories
 - files
@@ -423,6 +425,7 @@ Avoid:
 - dense technical information
 - heavy animation
 - decorative complexity
+- heavily rounded panels and controls
 
 ---
 

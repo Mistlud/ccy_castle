@@ -1,5 +1,29 @@
 # Castle progress
 
+## 2026-09-20 — System-file filtering and sharper Explorer styling
+
+Status: implementation and automated verification complete; browser UI confirmation remains user-controlled.
+
+### Implemented
+
+- Added case-insensitive `Thumbs.db` filtering for Explorer listings and media counts.
+- Excluded `Thumbs.db` from card thumbnail URL versions and generated-thumbnail cache fingerprints so Windows Explorer activity does not churn Castle caches.
+- Centered the Explorer thumbnail, changed it from 16:9 to 4:3, and increased its maximum width from `32rem` to `42rem`.
+- Reduced the Explorer folder-title range from `1.35rem–2.2rem` to `1.15rem–1.75rem`.
+- Reduced every custom UI corner radius to `0.3rem–0.45rem`, including the LAN badge, cards, controls, rows, thumbnails, media panels, and state boxes.
+
+### Verified on PC #1
+
+- `npm run check`: passed.
+- `npm test`: 20 tests passed, 0 failed, 0 skipped.
+- Tests confirm `Thumbs.db` is excluded from media counts and listings and does not change browser or generated-thumbnail cache identities.
+- `git diff --check`: passed.
+
+### Remaining manual checks
+
+- Confirm the centered 4:3 Explorer thumbnail and smaller folder title at the intended mobile width.
+- Confirm the sharper corners are visually consistent across cards, rows, status boxes, media panels, badges, and controls.
+
 ## 2026-09-20 — Explorer row interaction and folder thumbnail
 
 Status: implementation and automated verification complete; browser UI confirmation remains user-controlled.

@@ -111,6 +111,7 @@ class ThumbnailService {
     let explicitThumbnail = null;
 
     for (const name of names) {
+      if (name.toLowerCase() === 'thumbs.db') continue;
       try {
         const entry = await this.guard.resolveExisting(clientJoin(directory.relativePath, name));
         const kind = entry.stat.isDirectory() ? 'directory' : entry.stat.isFile() ? 'file' : 'other';
