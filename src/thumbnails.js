@@ -5,6 +5,8 @@ const { spawn, spawnSync } = require('node:child_process');
 const { mediaTypeFor } = require('./media-types');
 const { clientJoin } = require('./library');
 
+const GENERATED_THUMBNAIL_PATTERN = /^(?:r\d+-)?[a-f0-9]{64}\.jpg(?:\.\d+\.tmp\.jpg)?$/i;
+
 function detectFfmpeg() {
   try {
     return spawnSync('ffmpeg', ['-version'], {
@@ -23,14 +25,47 @@ class ThumbnailService {
     this.ffmpegAvailable = ffmpegAvailable;
     this.logger = logger;
     this.pending = new Map();
+    this.cacheRevision = 0;
+    this.directoryCachePaths = new Map();
   }
 
-  async cachePathFor(video) {
+  async cachePathFor(video, directorySignature) {
     const digest = crypto
       .createHash('sha256')
-      .update(`${video.absolutePath}\0${video.stat.size}\0${video.stat.mtimeMs}`)
+      .update(`${directorySignature}\0${video.absolutePath}\0${video.stat.size}\0${video.stat.mtimeMs}`)
       .digest('hex');
-    return path.join(this.cacheDirectory, `${digest}.jpg`);
+    return path.join(this.cacheDirectory, `r${this.cacheRevision}-${digest}.jpg`);
+  }
+
+  async forgetDirectory(relativeDirectory, nextPath = null) {
+    const previousPath = this.directoryCachePaths.get(relativeDirectory);
+    if (previousPath && previousPath !== nextPath) {
+      await fs.rm(previousPath, { force: true }).catch(() => {});
+    }
+    if (nextPath) this.directoryCachePaths.set(relativeDirectory, nextPath);
+    else this.directoryCachePaths.delete(relativeDirectory);
+  }
+
+  async invalidate() {
+    this.cacheRevision += 1;
+    const staleTasks = [...this.pending.values()];
+    await Promise.allSettled(staleTasks);
+    this.directoryCachePaths.clear();
+
+    let names;
+    try {
+      names = await fs.readdir(this.cacheDirectory);
+    } catch (error) {
+      if (error.code === 'ENOENT') return 0;
+      throw error;
+    }
+
+    const currentPrefix = `r${this.cacheRevision}-`;
+    const staleNames = names.filter(
+      (name) => GENERATED_THUMBNAIL_PATTERN.test(name) && !name.startsWith(currentPrefix),
+    );
+    await Promise.all(staleNames.map((name) => fs.rm(path.join(this.cacheDirectory, name), { force: true })));
+    return staleNames.length;
   }
 
   async generate(video, outputPath) {
@@ -68,33 +103,36 @@ class ThumbnailService {
 
   async find(relativeDirectory) {
     const directory = await this.guard.resolveExisting(relativeDirectory, 'directory');
-    const names = await fs.readdir(directory.absolutePath);
+    const names = (await fs.readdir(directory.absolutePath)).sort((left, right) => left.localeCompare(right));
+    const signature = crypto.createHash('sha256');
+    signature.update(directory.relativePath);
+    const videos = [];
+    const images = [];
+    let explicitThumbnail = null;
 
-    const explicitName = names.find((name) => name.toLowerCase() === 'thumbnail.jpg');
-    if (explicitName) {
+    for (const name of names) {
       try {
-        return (await this.guard.resolveExisting(clientJoin(directory.relativePath, explicitName), 'file')).absolutePath;
+        const entry = await this.guard.resolveExisting(clientJoin(directory.relativePath, name));
+        const kind = entry.stat.isDirectory() ? 'directory' : entry.stat.isFile() ? 'file' : 'other';
+        signature.update(`\0${kind}\0${name}\0${entry.stat.size}\0${entry.stat.mtimeMs}`);
+        if (!entry.stat.isFile()) continue;
+        if (name.toLowerCase() === 'thumbnail.jpg') explicitThumbnail = entry;
+        const type = mediaTypeFor(name);
+        if (type === 'video') videos.push(entry);
+        if (type === 'image' && name.toLowerCase() !== 'thumbnail.jpg') images.push(entry);
       } catch {
-        // Continue through the documented fallback order.
+        // Unsafe and inaccessible entries are never served or fingerprinted.
       }
     }
 
-    const videos = [];
-    const images = [];
-    for (const name of names.sort((left, right) => left.localeCompare(right))) {
-      const type = mediaTypeFor(name);
-      if (type !== 'video' && type !== 'image') continue;
-      try {
-        const file = await this.guard.resolveExisting(clientJoin(directory.relativePath, name), 'file');
-        if (type === 'video') videos.push(file);
-        if (type === 'image') images.push(file);
-      } catch {
-        // Unsafe and inaccessible candidates are never served.
-      }
+    if (explicitThumbnail) {
+      await this.forgetDirectory(directory.relativePath);
+      return explicitThumbnail.absolutePath;
     }
 
     if (videos.length > 0) {
-      const cachedPath = await this.cachePathFor(videos[0]);
+      const cachedPath = await this.cachePathFor(videos[0], signature.digest('hex'));
+      await this.forgetDirectory(directory.relativePath, cachedPath);
       try {
         const stat = await fs.stat(cachedPath);
         if (stat.isFile()) return cachedPath;
@@ -102,10 +140,18 @@ class ThumbnailService {
         // Cache miss.
       }
 
-      if (images.length > 0) return images[0].absolutePath;
-      if (this.ffmpegAvailable) return this.generate(videos[0], cachedPath);
+      if (images.length > 0) {
+        await this.forgetDirectory(directory.relativePath);
+        return images[0].absolutePath;
+      }
+      if (this.ffmpegAvailable) {
+        const generated = await this.generate(videos[0], cachedPath);
+        if (!generated) await this.forgetDirectory(directory.relativePath);
+        return generated;
+      }
     }
 
+    await this.forgetDirectory(directory.relativePath);
     return images[0]?.absolutePath || null;
   }
 }

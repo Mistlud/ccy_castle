@@ -55,5 +55,23 @@ test('generates and reuses a cached video thumbnail when ffmpeg is available', a
 
   const reused = await service.find('Video');
   assert.equal(reused, generated);
+
+  await fs.writeFile(path.join(root, 'Video', 'meta.json'), '{"title":"Changed"}');
+  const regenerated = await service.find('Video');
+  assert.notEqual(regenerated, generated);
+  await assert.rejects(fs.stat(generated), { code: 'ENOENT' });
+  assert.ok((await fs.stat(regenerated)).size > 0);
   assert.ok((await fs.stat(videoPath)).size > 0, 'the original video remains intact');
+});
+
+test('manual invalidation removes generated thumbnails but preserves unrelated cache files', async () => {
+  await fs.mkdir(cacheDirectory, { recursive: true });
+  await fs.writeFile(path.join(cacheDirectory, `${'a'.repeat(64)}.jpg`), 'legacy');
+  await fs.writeFile(path.join(cacheDirectory, `r0-${'b'.repeat(64)}.jpg`), 'generated');
+  await fs.writeFile(path.join(cacheDirectory, 'keep.txt'), 'keep');
+  const service = new ThumbnailService({ guard, cacheDirectory, ffmpegAvailable: false, logger: quietLogger });
+
+  const removed = await service.invalidate();
+  assert.ok(removed >= 2);
+  assert.deepEqual(await fs.readdir(cacheDirectory), ['keep.txt']);
 });

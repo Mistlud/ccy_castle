@@ -1,5 +1,6 @@
 const app = document.querySelector('#app');
 const homeButton = document.querySelector('#home-button');
+const refreshButton = document.querySelector('#refresh-library');
 const audioDock = document.querySelector('#audio-dock');
 const audioPlayer = document.querySelector('#audio-player');
 const audioTitle = document.querySelector('#audio-title');
@@ -8,6 +9,7 @@ const nextTrack = document.querySelector('#next-track');
 
 let audioQueue = [];
 let audioIndex = -1;
+let refreshResetTimer;
 
 function element(tag, className, text) {
   const node = document.createElement(tag);
@@ -16,8 +18,11 @@ function element(tag, className, text) {
   return node;
 }
 
-async function api(url) {
-  const response = await fetch(url, { headers: { Accept: 'application/json' } });
+async function api(url, options = {}) {
+  const response = await fetch(url, {
+    ...options,
+    headers: { Accept: 'application/json', ...options.headers },
+  });
   if (!response.ok) throw new Error(response.status === 403 ? '허용되지 않은 경로입니다.' : '요청한 항목을 불러올 수 없습니다.');
   return response.json();
 }
@@ -28,9 +33,17 @@ function navigate(kind, path = '') {
   else location.hash = target;
 }
 
-function heading(eyebrow, title, description) {
-  const wrapper = element('header', 'page-heading');
-  wrapper.append(element('span', 'eyebrow', eyebrow), element('h1', '', title));
+function heading(eyebrow, title, description, { thumbnailUrl = '', compact = false } = {}) {
+  const wrapper = element('header', compact ? 'page-heading explorer-heading' : 'page-heading');
+  wrapper.append(element('span', 'eyebrow', eyebrow));
+  if (thumbnailUrl) {
+    const image = document.createElement('img');
+    image.className = 'folder-thumbnail';
+    image.src = thumbnailUrl;
+    image.alt = '';
+    wrapper.append(image);
+  }
+  wrapper.append(element('h1', '', title));
   if (description) wrapper.append(element('p', '', description));
   return wrapper;
 }
@@ -94,14 +107,13 @@ function renderEntries(browse, container) {
     container.append(element('h2', 'section-title', '폴더'));
     const list = element('div', 'entry-list');
     for (const directory of directories) {
-      const row = element('article', 'entry');
+      const row = element('button', 'entry entry-clickable');
+      row.type = 'button';
+      row.addEventListener('click', () => navigate('browse', directory.path));
       row.append(element('span', 'entry-icon', '▰'));
       const copy = element('div', 'entry-copy');
       copy.append(element('strong', '', directory.name), element('small', '', '폴더'));
-      const open = element('button', 'entry-action', '열기');
-      open.type = 'button';
-      open.addEventListener('click', () => navigate('browse', directory.path));
-      row.append(copy, open);
+      row.append(copy);
       list.append(row);
     }
     container.append(list);
@@ -112,27 +124,26 @@ function renderEntries(browse, container) {
     const list = element('div', 'entry-list');
     const audioFiles = files.filter((file) => file.mediaType === 'audio');
     for (const file of files) {
-      const row = element('article', 'entry');
+      let row;
+      if (file.mediaType === 'audio' || file.mediaType === 'video') {
+        row = element('button', 'entry entry-clickable');
+        row.type = 'button';
+        if (file.mediaType === 'audio') {
+          row.addEventListener('click', () => playTrack(audioFiles, audioFiles.findIndex((track) => track.path === file.path)));
+        } else {
+          row.addEventListener('click', () => showVideo(file, list));
+        }
+      } else {
+        row = element('a', 'entry entry-clickable');
+        row.href = file.mediaUrl;
+        row.target = '_blank';
+        row.rel = 'noopener';
+      }
       const icons = { image: '▧', audio: '♪', video: '▶', other: '·' };
       row.append(element('span', 'entry-icon', icons[file.mediaType] || '·'));
       const copy = element('div', 'entry-copy');
       copy.append(element('strong', '', file.name), element('small', '', `${file.mediaType} · ${formatBytes(file.size)}`));
-      let action;
-      if (file.mediaType === 'audio') {
-        action = element('button', 'entry-action', '재생');
-        action.type = 'button';
-        action.addEventListener('click', () => playTrack(audioFiles, audioFiles.findIndex((track) => track.path === file.path)));
-      } else if (file.mediaType === 'video') {
-        action = element('button', 'entry-action', '재생');
-        action.type = 'button';
-        action.addEventListener('click', () => showVideo(file, list));
-      } else {
-        action = element('a', 'entry-action', file.mediaType === 'image' ? '보기' : '열기');
-        action.href = file.mediaUrl;
-        action.target = '_blank';
-        action.rel = 'noopener';
-      }
-      row.append(copy, action);
+      row.append(copy);
       list.append(row);
     }
     container.append(list);
@@ -207,7 +218,10 @@ async function renderBrowse(path) {
   const browse = await api(`/api/browse?path=${encodeURIComponent(path)}`);
   const content = document.createDocumentFragment();
   content.append(renderBreadcrumb(browse.breadcrumb));
-  content.append(heading('Explorer', browse.title, '읽기 전용 폴더 탐색'));
+  content.append(heading('Explorer', browse.title, '읽기 전용 폴더 탐색', {
+    thumbnailUrl: browse.thumbnailUrl,
+    compact: true,
+  }));
   renderEntries(browse, content);
   app.replaceChildren(content);
   document.title = `${browse.title} · Castle`;
@@ -220,12 +234,37 @@ async function route() {
     if (hash.startsWith('menu=')) await renderMenu(decodeURIComponent(hash.slice(5)));
     else if (hash.startsWith('browse=')) await renderBrowse(decodeURIComponent(hash.slice(7)));
     else await renderHome();
+    return true;
   } catch (error) {
     app.replaceChildren(element('p', 'error', error.message || '화면을 불러오지 못했습니다.'));
+    return false;
+  }
+}
+
+async function refreshLibrary() {
+  if (refreshButton.disabled) return;
+  clearTimeout(refreshResetTimer);
+  refreshButton.disabled = true;
+  refreshButton.textContent = '새로고침 중…';
+  refreshButton.removeAttribute('title');
+  try {
+    await api('/api/refresh', { method: 'POST' });
+    if (!await route()) throw new Error('새로고침 후 화면을 다시 불러오지 못했습니다.');
+    refreshButton.textContent = '새로고침 완료';
+  } catch (error) {
+    refreshButton.textContent = '새로고침 실패';
+    refreshButton.title = error.message || '라이브러리를 새로고치지 못했습니다.';
+  } finally {
+    refreshButton.disabled = false;
+    refreshResetTimer = setTimeout(() => {
+      refreshButton.textContent = '라이브러리 새로고침';
+      refreshButton.removeAttribute('title');
+    }, 1800);
   }
 }
 
 homeButton.addEventListener('click', () => navigate('', ''));
+refreshButton.addEventListener('click', refreshLibrary);
 previousTrack.addEventListener('click', () => {
   if (audioQueue.length) playTrack(audioQueue, (audioIndex - 1 + audioQueue.length) % audioQueue.length);
 });

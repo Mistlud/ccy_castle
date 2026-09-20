@@ -42,7 +42,30 @@ test('serves menu and item APIs without absolute host paths', async () => {
   const body = await itemResponse.text();
   assert.equal(itemResponse.status, 200);
   assert.equal(body.includes(temporaryDirectory), false);
-  assert.equal(JSON.parse(body).cards[0].path, 'Movies/Demo');
+  const item = JSON.parse(body);
+  const card = item.cards[0];
+  assert.equal(card.path, 'Movies/Demo');
+  assert.match(card.thumbnailUrl, /&v=[a-f0-9]{16}$/);
+  assert.match(item.menu.thumbnailUrl, /&v=[a-f0-9]{16}$/);
+});
+
+test('refreshes library revisions and applies immutable caching only to versioned thumbnails', async () => {
+  const beforeResponse = await fetch(`${baseUrl}/api/item?path=Movies`);
+  const before = (await beforeResponse.json()).cards[0].thumbnailUrl;
+  const versionedThumbnail = await fetch(`${baseUrl}${before}`);
+  assert.match(versionedThumbnail.headers.get('cache-control'), /immutable/);
+
+  const refreshResponse = await fetch(`${baseUrl}/api/refresh`, { method: 'POST' });
+  assert.equal(refreshResponse.status, 200);
+  assert.equal((await refreshResponse.json()).revision, 1);
+
+  const afterResponse = await fetch(`${baseUrl}/api/item?path=Movies`);
+  const after = (await afterResponse.json()).cards[0].thumbnailUrl;
+  assert.notEqual(after, before);
+
+  assert.equal((await fetch(`${baseUrl}/api/refresh`)).status, 405);
+  const home = await fetch(baseUrl);
+  assert.match(await home.text(), /id="refresh-library"/);
 });
 
 test('rejects encoded, mixed-slash, and absolute traversal without leaking host paths', async () => {
@@ -98,4 +121,5 @@ test('supports HEAD for media and serves thumbnail fallback', async () => {
   const thumbnail = await fetch(`${baseUrl}/thumbnail?path=${encodeURIComponent('Movies/Demo')}`);
   assert.equal(thumbnail.status, 200);
   assert.match(thumbnail.headers.get('content-type'), /^image\/svg\+xml/);
+  assert.equal(thumbnail.headers.get('cache-control'), 'no-store');
 });

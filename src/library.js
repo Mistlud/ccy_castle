@@ -1,3 +1,4 @@
+const crypto = require('node:crypto');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const { inferCollectionType, mediaTypeFor } = require('./media-types');
@@ -27,6 +28,21 @@ class CastleLibrary {
   constructor(guard, logger = console) {
     this.guard = guard;
     this.logger = logger;
+    this.refreshRevision = 0;
+  }
+
+  invalidate() {
+    this.refreshRevision += 1;
+    return this.refreshRevision;
+  }
+
+  versionFor(relativeDirectory, entries) {
+    const hash = crypto.createHash('sha256');
+    hash.update(`${this.refreshRevision}\0${relativeDirectory}`);
+    for (const entry of entries) {
+      hash.update(`\0${entry.kind}\0${entry.name}\0${entry.size ?? ''}\0${entry.mtimeMs}`);
+    }
+    return hash.digest('hex').slice(0, 16);
   }
 
   async readMetadata(absoluteDirectory) {
@@ -62,6 +78,7 @@ class CastleLibrary {
           path: relativePath,
           kind: resolved.stat.isDirectory() ? 'directory' : 'file',
           size: resolved.stat.isFile() ? resolved.stat.size : null,
+          mtimeMs: resolved.stat.mtimeMs,
           mediaType: resolved.stat.isFile() ? mediaTypeFor(dirent.name) : 'folder',
         });
       } catch (error) {
@@ -87,6 +104,7 @@ class CastleLibrary {
     const directory = await this.guard.resolveExisting(relativeDirectory, 'directory');
     const entries = await this.listEntries(directory.relativePath);
     const metadata = await this.readMetadata(directory.absolutePath);
+    const version = this.versionFor(directory.relativePath, entries);
     const mediaFiles = entries.filter(
       (entry) => entry.kind === 'file' && !isCardSupportFile(entry.name),
     );
@@ -99,7 +117,7 @@ class CastleLibrary {
       description: metadata.description || '',
       rating: metadata.rating || '',
       mediaCount: mediaFiles.length,
-      thumbnailUrl: `/thumbnail?path=${encodeURIComponent(directory.relativePath)}`,
+      thumbnailUrl: `/thumbnail?path=${encodeURIComponent(directory.relativePath)}&v=${version}`,
     };
   }
 
@@ -114,14 +132,17 @@ class CastleLibrary {
 
   async browse(relativeDirectory = '') {
     const directory = await this.guard.resolveExisting(relativeDirectory, 'directory');
-    const entries = (await this.listEntries(directory.relativePath)).filter(
+    const allEntries = await this.listEntries(directory.relativePath);
+    const version = this.versionFor(directory.relativePath, allEntries);
+    const entries = allEntries.filter(
       (entry) => entry.kind !== 'file' || !isCardSupportFile(entry.name),
     );
     return {
       path: directory.relativePath,
       title: directory.relativePath ? path.basename(directory.absolutePath) : 'Castle',
+      thumbnailUrl: `/thumbnail?path=${encodeURIComponent(directory.relativePath)}&v=${version}`,
       breadcrumb: breadcrumb(directory.relativePath),
-      entries: entries.map((entry) => ({
+      entries: entries.map(({ mtimeMs, ...entry }) => ({
         ...entry,
         mediaUrl: entry.kind === 'file' ? `/media?path=${encodeURIComponent(entry.path)}` : null,
       })),

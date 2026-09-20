@@ -171,6 +171,8 @@ Home
 
 Cards should be mobile-first and easy to scan with one hand.
 
+Inside a folder, the Explorer heading should show the Explorer label, current-folder thumbnail, and a compact folder title in that order. Each folder or file row should open or play from the whole row instead of a separate trailing action button.
+
 Preferred card content:
 
 - thumbnail
@@ -250,6 +252,8 @@ ffmpeg may be used for optional video thumbnail generation if available.
 Do not make ffmpeg mandatory for the application to function.
 
 Generated thumbnails should be cached and original media files must not be modified.
+
+Card thumbnail URLs should carry a version derived from the card folder's direct contents. Changes to metadata, an explicit thumbnail, or folder contents must produce a new thumbnail URL on the next scan. A top-bar **라이브러리 새로고침** action should force a rescan, reread metadata, advance all thumbnail versions, remove only generated thumbnails, and reload the current view.
 
 ---
 

@@ -173,7 +173,7 @@ async function createCastleServer({ root, cacheDirectory, ffmpegAvailable, logge
   const server = http.createServer(async (request, response) => {
     applySecurityHeaders(response);
     const method = request.method || 'GET';
-    if (method !== 'GET' && method !== 'HEAD') {
+    if (method !== 'GET' && method !== 'HEAD' && method !== 'POST') {
       sendJson(response, 405, { error: 'Method not allowed.' }, method);
       return;
     }
@@ -181,6 +181,21 @@ async function createCastleServer({ root, cacheDirectory, ffmpegAvailable, logge
     try {
       const url = new URL(request.url, 'http://castle.local');
       const clientPath = url.searchParams.get('path') || '';
+
+      if (url.pathname === '/api/refresh') {
+        if (method !== 'POST') {
+          sendJson(response, 405, { error: 'Method not allowed.' }, method);
+          return;
+        }
+        const revision = library.invalidate();
+        const invalidatedThumbnails = await thumbnails.invalidate();
+        sendJson(response, 200, { revision, invalidatedThumbnails }, method);
+        return;
+      }
+      if (method === 'POST') {
+        sendJson(response, 405, { error: 'Method not allowed.' }, method);
+        return;
+      }
 
       if (STATIC_FILES.has(url.pathname)) {
         await serveFile(request, response, path.join(PUBLIC_DIRECTORY, STATIC_FILES.get(url.pathname)), {
@@ -207,8 +222,9 @@ async function createCastleServer({ root, cacheDirectory, ffmpegAvailable, logge
       }
       if (url.pathname === '/thumbnail') {
         const thumbnail = await thumbnails.find(clientPath);
+        const versioned = /^[a-f0-9]{16}$/i.test(url.searchParams.get('v') || '');
         await serveFile(request, response, thumbnail || path.join(PUBLIC_DIRECTORY, 'placeholder.svg'), {
-          cacheControl: 'private, max-age=300',
+          cacheControl: versioned ? 'private, max-age=31536000, immutable' : 'no-store',
         });
         return;
       }

@@ -1,5 +1,54 @@
 # Castle progress
 
+## 2026-09-20 — Explorer row interaction and folder thumbnail
+
+Status: implementation and automated verification complete; browser UI confirmation remains user-controlled.
+
+### Implemented
+
+- Replaced trailing `열기`, `재생`, and `보기` controls with whole-row folder and file actions.
+- Kept native keyboard behavior by using buttons for folders, audio, and video, and links for images and other files.
+- Added the current folder's versioned thumbnail URL to Explorer API responses.
+- Reordered the Explorer heading to label, thumbnail, compact folder title, and description.
+- Reduced only the Explorer folder-title size; home and menu heading sizes are unchanged.
+
+### Verified on PC #1
+
+- `npm run check`: passed.
+- `npm test`: 20 tests passed, 0 failed, 0 skipped.
+- Explorer API tests confirm a versioned current-folder thumbnail URL.
+- `git diff --check`: passed.
+
+### Remaining manual checks
+
+- Confirm the Explorer label, thumbnail, folder title, and description order at the intended mobile width.
+- Confirm tapping anywhere on folder, audio, video, image, and other-file rows performs the expected action.
+
+## 2026-09-20 — Cache invalidation and manual refresh
+
+Status: implementation and automated verification complete; browser UI confirmation remains user-controlled.
+
+### Implemented
+
+- Added per-card thumbnail URL versions derived from direct folder entry names, kinds, sizes, and modification times.
+- Metadata, explicit thumbnail, and folder-content changes now produce a new thumbnail URL on the next library load.
+- Generated video thumbnail identities include the current folder signature, and replaced cache files are removed when detected during the running process.
+- Versioned thumbnail responses use immutable browser caching; unversioned requests use `no-store`.
+- Added `POST /api/refresh` to advance all card versions and remove only Castle-generated thumbnail cache files.
+- Added the top-bar **라이브러리 새로고침** button with working, success, and failure states; successful refresh reloads the current route.
+
+### Verified on PC #1
+
+- `npm run check`: passed.
+- `npm test`: 20 tests passed, 0 failed, 0 skipped.
+- Tests cover automatic URL changes for metadata, explicit-thumbnail, and folder-content changes; manual revision changes; generated-thumbnail replacement and cleanup; refresh API behavior; cache headers; and refresh-button presence.
+- `git diff --check`: passed.
+
+### Remaining manual checks
+
+- Confirm the refresh button layout and status text at the intended mobile width.
+- Change `meta.json` and `thumbnail.jpg` while the server is running, press **라이브러리 새로고침**, and confirm the card text and image update without a browser hard refresh.
+
 ## 2026-09-20 — Metadata schema update
 
 Status: implementation and automated verification complete; browser UI confirmation remains user-controlled.
@@ -15,7 +64,7 @@ Status: implementation and automated verification complete; browser UI confirmat
 ### Verified on PC #1
 
 - `npm run check`: passed.
-- `npm test`: 17 tests passed, 0 failed, 0 skipped.
+- `npm test`: 20 tests passed, 0 failed, 0 skipped.
 - Library tests confirm `artist` and `rating` mapping, legacy `type` and `date` exclusion, inferred media type fallback, and support-file hiding.
 
 ### Remaining manual check

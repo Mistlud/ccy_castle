@@ -59,6 +59,20 @@ button { font: inherit; }
   letter-spacing: .08em;
 }
 
+.refresh-button {
+  min-height: 2.5rem;
+  margin-left: auto;
+  padding: .45rem .7rem;
+  border: 1px solid #3b4453;
+  border-radius: .7rem;
+  color: #fff;
+  background: #252b36;
+  font-size: .78rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.refresh-button:disabled { opacity: .65; cursor: progress; }
+
 .shell {
   width: min(100%, 62rem);
   margin: 0 auto;
@@ -77,6 +91,8 @@ button { font: inherit; }
 }
 .page-heading h1 { margin: 0; font-size: clamp(1.7rem, 8vw, 3rem); letter-spacing: -.045em; }
 .page-heading p { margin: .55rem 0 0; color: var(--muted); line-height: 1.5; }
+.folder-thumbnail { display: block; width: min(100%, 32rem); margin: 0 0 1rem; aspect-ratio: 16 / 9; border-radius: 1rem; object-fit: cover; background: #252b36; }
+.explorer-heading h1 { font-size: clamp(1.35rem, 6vw, 2.2rem); }
 
 .breadcrumb {
   display: flex;
@@ -142,29 +158,26 @@ button { font: inherit; }
 .entry-list { display: grid; gap: .55rem; }
 .entry {
   display: grid;
-  grid-template-columns: 2.2rem minmax(0, 1fr) auto;
+  grid-template-columns: 2.2rem minmax(0, 1fr);
   align-items: center;
   gap: .65rem;
+  width: 100%;
   min-height: 3.8rem;
   padding: .7rem .75rem;
   border: 1px solid var(--line);
   border-radius: .85rem;
+  color: inherit;
   background: var(--panel);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
 }
 .entry-icon { display: grid; place-items: center; width: 2.2rem; height: 2.2rem; border-radius: .65rem; background: #252b36; }
 .entry-copy { min-width: 0; }
 .entry-copy strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .entry-copy small { color: var(--muted); }
-.entry-action {
-  min-height: 2.7rem;
-  padding: .55rem .75rem;
-  border: 1px solid #3b4453;
-  border-radius: .7rem;
-  color: #fff;
-  background: #252b36;
-  text-decoration: none;
-  cursor: pointer;
-}
+.entry:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .video-view { margin: 1rem 0; padding: .8rem; border: 1px solid var(--line); border-radius: 1rem; background: #050608; }
 .video-view video { display: block; width: 100%; max-height: 70vh; border-radius: .65rem; }
@@ -207,5 +220,5 @@ button { font: inherit; }
 }
 
 @media (hover: hover) {
-  .menu-tile:hover, .media-card:hover, .entry-action:hover { border-color: #596476; transform: translateY(-1px); }
+  .menu-tile:hover, .media-card:hover, .entry:hover, .refresh-button:hover { border-color: #596476; transform: translateY(-1px); }
 }

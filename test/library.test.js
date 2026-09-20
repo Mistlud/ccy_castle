@@ -15,6 +15,7 @@ before(async () => {
   temporaryDirectory = await fs.mkdtemp(path.join(os.tmpdir(), 'castle-library-test-'));
   await fs.mkdir(path.join(temporaryDirectory, 'Movies', 'Interstellar'), { recursive: true });
   await fs.mkdir(path.join(temporaryDirectory, 'Movies', 'Broken Metadata'), { recursive: true });
+  await fs.mkdir(path.join(temporaryDirectory, 'Movies', 'Versioned'), { recursive: true });
   await fs.mkdir(path.join(temporaryDirectory, 'Photos'), { recursive: true });
   await fs.writeFile(path.join(temporaryDirectory, 'Movies', 'Interstellar', 'movie.mkv'), 'video');
   await fs.writeFile(path.join(temporaryDirectory, 'Movies', 'Interstellar', 'Thumbnail.JPG'), 'thumbnail');
@@ -28,6 +29,8 @@ before(async () => {
   }));
   await fs.writeFile(path.join(temporaryDirectory, 'Movies', 'Broken Metadata', 'track.mp3'), 'audio');
   await fs.writeFile(path.join(temporaryDirectory, 'Movies', 'Broken Metadata', 'meta.json'), '{broken');
+  await fs.writeFile(path.join(temporaryDirectory, 'Movies', 'Versioned', 'clip.mp4'), 'video');
+  await fs.writeFile(path.join(temporaryDirectory, 'Movies', 'Versioned', 'meta.json'), '{"title":"One"}');
   library = new CastleLibrary(await PathGuard.create(temporaryDirectory), quietLogger);
 });
 
@@ -65,8 +68,30 @@ test('falls back to folder name and inferred type for malformed metadata', async
 
 test('returns safe relative explorer entries and breadcrumbs', async () => {
   const result = await library.browse('Movies/Interstellar');
+  assert.match(result.thumbnailUrl, /&v=[a-f0-9]{16}$/);
   assert.deepEqual(result.breadcrumb.map((entry) => entry.path), ['', 'Movies', 'Movies/Interstellar']);
   assert.equal(result.entries.find((entry) => entry.name === 'movie.mkv').mediaType, 'video');
   assert.equal(result.entries.some((entry) => ['meta.json', 'thumbnail.jpg'].includes(entry.name.toLowerCase())), false);
   assert.ok(result.entries.every((entry) => !path.isAbsolute(entry.path)));
+});
+
+test('versions thumbnail URLs when metadata, thumbnails, contents, or manual revision changes', async () => {
+  const itemPath = path.join(temporaryDirectory, 'Movies', 'Versioned');
+  const initial = (await library.card('Movies/Versioned')).thumbnailUrl;
+  assert.match(initial, /&v=[a-f0-9]{16}$/);
+
+  await fs.writeFile(path.join(itemPath, 'meta.json'), '{"title":"A longer title"}');
+  const afterMetadata = (await library.card('Movies/Versioned')).thumbnailUrl;
+  assert.notEqual(afterMetadata, initial);
+
+  await fs.writeFile(path.join(itemPath, 'thumbnail.jpg'), 'thumbnail');
+  const afterThumbnail = (await library.card('Movies/Versioned')).thumbnailUrl;
+  assert.notEqual(afterThumbnail, afterMetadata);
+
+  await fs.writeFile(path.join(itemPath, 'extra.mp3'), 'audio');
+  const afterContents = (await library.card('Movies/Versioned')).thumbnailUrl;
+  assert.notEqual(afterContents, afterThumbnail);
+
+  library.invalidate();
+  assert.notEqual((await library.card('Movies/Versioned')).thumbnailUrl, afterContents);
 });

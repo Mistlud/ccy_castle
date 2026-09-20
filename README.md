@@ -30,6 +30,16 @@ castle/
 
 `meta.json` and `thumbnail.jpg` are card support files. They are used by Castle but omitted from explorer listings and media counts, case-insensitively.
 
+## Refresh and thumbnail caching
+
+Castle fingerprints each card folder from its direct entries. Changes to `meta.json`, `thumbnail.jpg`, or the folder contents produce a new `v` value in that card's thumbnail URL the next time the library is loaded, so the browser does not reuse an older thumbnail for changed content. Versioned thumbnail responses are immutable; unversioned thumbnail requests are not cached.
+
+Use the **라이브러리 새로고침** button in the top bar for manual recovery. It rescans the current view, rereads metadata, advances every thumbnail URL version, and removes only Castle-generated thumbnail cache files. It never removes original media, `meta.json`, or user-provided `thumbnail.jpg` files.
+
+## Explorer interaction
+
+The Explorer header shows its label, the current folder thumbnail, and then a compact folder title. Folder and file rows are single large click targets: folders navigate, audio starts playback, video opens the inline player, and images or other files open in a new tab. Separate `열기`, `재생`, and `보기` buttons are not used.
+
 ## Development and automated checks on PC #1
 
 No runtime packages need to be installed.
@@ -124,12 +134,13 @@ With the server running on PC #2 and the phone connected to the same Wi-Fi:
 3. Confirm direct child folders appear as home menus.
 4. Open a menu and confirm child folders appear as cards.
 5. Verify title, metadata, thumbnail, and placeholder fallbacks.
-6. Browse into nested directories and confirm breadcrumbs never navigate above Castle.
-7. Open an original image.
-8. Play and seek audio; test previous/next when a folder contains multiple tracks.
-9. Play a browser-supported video and seek to a later position.
-10. Confirm malformed or missing `meta.json` does not break the page.
-11. Confirm the server stays responsive during normal playback.
+6. Change `meta.json` or `thumbnail.jpg`, press **라이브러리 새로고침**, and confirm the card updates without a browser hard refresh.
+7. Browse into nested directories and confirm breadcrumbs never navigate above Castle.
+8. Open an original image.
+9. Play and seek audio; test previous/next when a folder contains multiple tracks.
+10. Play a browser-supported video and seek to a later position.
+11. Confirm malformed or missing `meta.json` does not break the page.
+12. Confirm the server stays responsive during normal playback.
 
 Some codecs, including some MKV codec combinations, may not play directly in a mobile browser. The MVP serves the original file and does not transcode it.
 

@@ -217,6 +217,10 @@ Generated thumbnails should be cached separately from original media.
 
 Do not modify original files.
 
+Each card thumbnail URL must include a version derived from the direct folder entries. A change to `meta.json`, `thumbnail.jpg`, or the folder contents must produce a new URL on the next library scan. Generated thumbnail cache keys must also change with the relevant folder state so stale generated images are not reused.
+
+The UI should provide a manual library refresh action that advances all thumbnail versions, rereads filesystem metadata, removes only generated thumbnail cache files, and reloads the current view.
+
 ---
 
 ## 10. Item detail / explorer view
@@ -227,12 +231,14 @@ This view also acts as the constrained file explorer.
 
 Show:
 
-- current title
+- explorer label, current-folder thumbnail, and compact current title in that order
 - breadcrumb from `castle`
 - child directories
 - files
 - media type
 - file size where useful
+
+Each folder or file row should be one keyboard-accessible click target. Do not require a separate trailing open, play, or view button.
 
 Allow deeper navigation.
 
@@ -322,8 +328,9 @@ Reasonable starting shape:
 GET /api/menus
 GET /api/browse?path=<relative-path>
 GET /api/item?path=<relative-path>
+POST /api/refresh
 GET /media?path=<relative-file-path>
-GET /thumbnail?path=<relative-item-path>
+GET /thumbnail?path=<relative-item-path>&v=<content-version>
 ```
 
 Requirements matter more than exact naming.
@@ -452,6 +459,8 @@ The server may cache:
 - generated thumbnails
 
 but cache must never become a second source of truth.
+
+Card folder state must be checked when card data is rebuilt. Cache-relevant file changes invalidate the related thumbnail identity automatically. Versioned thumbnail URLs prevent stale browser cache reuse, and the manual refresh action must invalidate all server-generated thumbnails without touching library source files.
 
 A server restart must be able to reconstruct state from `castle`.
 
