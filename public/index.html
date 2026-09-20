@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#10131a">
+  <title>Castle</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <button id="home-button" class="brand" type="button" aria-label="Castle 홈">Castle</button>
+    <span class="lan-badge">LAN</span>
+  </header>
+
+  <main id="app" class="shell" aria-live="polite">
+    <p class="loading">라이브러리를 불러오는 중…</p>
+  </main>
+
+  <section id="audio-dock" class="audio-dock" hidden aria-label="오디오 플레이어">
+    <div class="track-summary">
+      <span class="eyebrow">현재 재생</span>
+      <strong id="audio-title">—</strong>
+    </div>
+    <audio id="audio-player" controls preload="metadata"></audio>
+    <div class="track-controls">
+      <button id="previous-track" type="button" aria-label="이전 트랙">이전</button>
+      <button id="next-track" type="button" aria-label="다음 트랙">다음</button>
+    </div>
+  </section>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>
